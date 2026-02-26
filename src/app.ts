@@ -308,8 +308,7 @@ app.post("/slack/commands", (req: Request, res: Response) => {
 store.load();
 store.setupShutdownHooks();
 
-app.listen(config.port, () => {
-  console.log(`PR Tracker listening on port ${config.port}`);
+app.listen(3000, () => {
   const channels = store.getAllChannels();
   const channelCount = Object.keys(channels).length;
 
