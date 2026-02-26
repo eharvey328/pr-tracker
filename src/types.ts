@@ -74,7 +74,6 @@ export interface Config {
     botToken: string;
     signingSecret?: string;
   };
-  port: number;
 }
 
 // Channel configuration

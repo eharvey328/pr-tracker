@@ -33,7 +33,6 @@ const config: Config = {
     botToken: process.env.SLACK_BOT_TOKEN!,
     signingSecret: process.env.SLACK_SIGNING_SECRET,
   },
-  port: parseInt(process.env.PORT || "3000", 10),
 };
 
 export default config;
