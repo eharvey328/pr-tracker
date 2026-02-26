@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+.git
+.gitignore
+README.md
+*.log
+data/store.json
+private-key.pem

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pr-tracker-config
+  namespace: pr-tracker
+data:
+  github-enterprise-url: "https://github.ibm.com"

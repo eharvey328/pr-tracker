@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pr-tracker
+  namespace: pr-tracker
+  labels:
+    app: pr-tracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pr-tracker
+  template:
+    metadata:
+      labels:
+        app: pr-tracker
+    spec:
+      containers:
+        - name: pr-tracker
+          image: us.icr.io/pr-tracker/pr-tracker:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "3000"
+            - name: GITHUB_APP_ID
+              valueFrom:
+                secretKeyRef:
+                  name: pr-tracker-secrets
+                  key: github-app-id
+            - name: GITHUB_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: pr-tracker-secrets
+                  key: github-webhook-secret
+            - name: GITHUB_ENTERPRISE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: pr-tracker-config
+                  key: github-enterprise-url
+            - name: GITHUB_PRIVATE_KEY_PATH
+              value: /secrets/private-key.pem
+            - name: SLACK_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: pr-tracker-secrets
+                  key: slack-bot-token
+            - name: SLACK_SIGNING_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: pr-tracker-secrets
+                  key: slack-signing-secret
+          volumeMounts:
+            - name: github-private-key
+              mountPath: /secrets
+              readOnly: true
+            - name: data
+              mountPath: /app/data
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+      volumes:
+        - name: github-private-key
+          secret:
+            secretName: pr-tracker-secrets
+            items:
+              - key: github-private-key
+                path: private-key.pem
+        - name: data
+          emptyDir: {}
+      imagePullSecrets:
+        - name: icr-secret
